@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Musician's Lair / Products</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        header {
+            background-color: #232f3e;
+            color: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        header nav {
+            display: flex;
+            gap: 1rem;
+        }
+
+        header nav a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        header nav a:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        header #searchBar {
+            flex-grow: 1;
+            margin: 0 1rem;
+            padding: 0.5rem;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            font-size: 1rem;
+        }
+
+        main {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-evenly;
+            padding: 2rem;
+        }
+
+        .product {
+            position: relative;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin: 1rem;
+            padding: 1rem;
+            text-align: center;
+            width: calc(25% - 2rem);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            z-index: 1;
+        }
+
+        .product:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            z-index: 2;
+        }
+
+        .product img {
+            max-width: 100%;
+            border-radius: 5px;
+        }
+
+        .product h2 {
+            font-size: 1.2rem;
+            margin: 0.5rem 0;
+        }
+
+        .product p {
+            font-size: 1rem;
+            color: #b12704;
+        }
+
+        .product button {
+            background-color: #f0c14b;
+            border: 1px solid #a88734;
+            padding: 0.5rem;
+            cursor: pointer;
+            border-radius: 3px;
+            margin-bottom: 0.5rem;
+        }
+
+        .product button:hover {
+            background-color: #ddb347;
+        }
+
+        .popup {
+            display: none;
+            position: absolute;
+            top: -10px; 
+            left: calc(40% + 10px); 
+            width: 250px;
+            padding: 1rem;
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            text-align: left;
+            z-index: 3;
+        }
+
+        .product:hover .popup {
+            display: block;
+        }
+
+        #cartSidebar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 300px;
+            height: 100%;
+            background-color: #f4f4f4;
+            box-shadow: -2px 0 5px rgba(0,0,0,0.5);
+            overflow-y: auto;
+            padding: 2rem;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            z-index: 4;
+        }
+
+        #cartSidebar.open {
+            transform: translateX(0);
+        }
+
+        #cartSidebar h2 {
+            margin-top: 0;
+        }
+
+        #cartSidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        #cartSidebar ul li {
+            margin: 1rem 0;
+        }
+
+        #cartSidebar ul li img {
+            width: 50px;
+            height: 50px;
+            margin-right: 1rem;
+            vertical-align: middle;
+        }
+
+        #cartIcon {
+            cursor: pointer;
+            position: relative;
+        }
+
+        #cartIcon img {
+            width: 25px;
+            height: 25px;
+        }
+
+        #cartItemCount {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background-color: red;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 0.8rem;
+        }
+
+        #closeCartButton {
+            background-color: #39A28D;
+            border: 1px solid #a88734;
+            padding: 0.5rem;
+            cursor: pointer;
+            border-radius: 3px;
+            margin-bottom: 0.5rem;
+            text-align: center;
+            display: block;
+            width: 100%;
+        }
+
+        footer {
+            padding: 2rem;
+            text-align: center;
+            background-color: #f4f4f4;
+        }
+
+        .contact-info h3 {
+            margin-bottom: 1rem;
+        }
+
+        .contact-info p {
+            margin: 0.5rem 0;
+        }
+		
+		.sidebar {
+            background-color: #fff;
+            color: #232f3e;
+            width: 300px;
+            padding: 1rem;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: none;
+            position: absolute;
+            top: 50px;
+            right: 70px;
+            z-index: 1000;
+        }
+
+        header nav a:hover + .sidebar,
+        .sidebar:hover {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Musician's Lair</h1>
+        <input type="text" id="searchBar" placeholder="Search...">
+        <select id="categoryFilter">
+            <option value="all">All</option>
+            <option value="guitar">Guitar</option>
+            <option value="piano">Piano</option>
+            <option value="saxophone">Saxophone</option>
+            <option value="drums">Drums</option>
+        </select>
+        <nav>
+            <a href="file:///C:/Users/202312294/Downloads/OneDrive_2024-05-19/WebDesign%20Finals/index.html">Home</a>
+            <a href="file:///C:/Users/202312294/Downloads/OneDrive_2024-05-19/WebDesign%20Finals/Iwanari_Finals.html">Products</a>
+            <a href="">About Us</a>
+            <div class="sidebar">
+                <h3>About Us</h3>
+                <p>Welcome to Musician's Lair - your one-stop destination for musical instruments and accessories.</p>
+            </div>
+            <a id="cartIcon"><img src="musicart.png" alt="Cart"><span id="cartItemCount">0</span></a>
+        </nav>
+    </header>
+    <main>
+        <div class="product" data-name="Guitar">
+            <img src="guitar1.jpg" alt="Guitar">
+            <h2>Yamaha F310 Acoustic Guitar</h2>
+            <p>$229.99</p>
+            <button>Add to Cart</button>
+            <div class="popup">
+                <h3>Yamaha F310 Acoustic Guitar Description</h3>
+                <p>This Yamaha model is a solid choice for beginners, offering a bright tone and comfortable playability due to its quality build and materials.</p>
+            </div>
+        </div>
+		<div class="product" data-name="Piano">
+            <img src="piano2.jpg" alt="Piano">
+            <h2>Casio CDP-S150 Digital Piano</h2>
+            <p>$479.99</p>
+            <button>Add to Cart</button>
+            <div class="popup">
+                <h3>Casio CDP-S150 Digital Piano Description</h3>
+                <p>It offers a range of high-quality sounds, including grand piano tones, and is equipped with useful features like built-in speakers and USB connectivity.
+				This model is suitable for beginners and gigging musicians who need a portable instrument with authentic piano touch.</p>
+            </div>
+        </div>
+        <div class="product" data-name="Guitar">
+            <img src="guitar2.jpg" alt="Guitar">
+            <h2>Epiphone Les Paul Special II Electric Guitar</h2>
+            <p>$249​.99</p>
+            <button>Add to Cart</button>
+            <div class="popup">
+                <h3>Epiphone Les Paul Special II Electric Guitar Description</h3>
+                <p>An entry-level electric guitar known for its classic Les Paul design and decent pickups, suitable for rock and blues.</p>
+            </div>
+        </div>
+        <div class="product" data-name="Drums">
+            <img src="drums1.jpg" alt="Drums">
+            <h2>Gammon Percussion Full Size Drum Set</h2>
+            <p>$199.99</p>
+            <button>Add to Cart</button>
+            <div class="popup">
+                <h3>Gammon Percussion Full Size Drum Set Description</h3>
+                <p>An affordable drum kit that includes everything needed to start playing, ideal for casual drummers.</p>
+            </div>
+        </div>
+        <div class="product" data-name="Saxophone">
+            <img src="sax1.png" alt="Saxophone">
+            <h2>Cecilio Mendini MAS-LN Alto Saxophone</h2>
+            <p>$239​.99</p>
+            <button>Add to Cart</button>
+            <div class="popup">
+                <h3>Cecilio Mendini MAS-LN Alto Saxophone Description</h3>
+                <p>A popular choice for beginners and students due to its affordable price and decent quality.
+				It features a durable construction, comfortable key layout, and produces a warm and pleasing tone suitable for practice and performance.</p>
+            </div>
+        </div>
+        <div class="product" data-name="Guitar">
+            <img src="guitar3.jpg" alt="Guitar">
+            <h2>Squier Affinity Series Stratocaster</h2>
+            <p> $249.99​</p>
+            <button>Add to Cart</button>
+            <div class="popup">
+                <h3>Squier Affinity Series Stratocaster Description</h3>
+                <p>A budget-friendly electric guitar inspired by the iconic Fender Stratocaster, ideal for beginners and versatile in style.</p>
+            </div>
+        </div>
+        <div class="product" data-name="Piano">
+            <img src="piano1.jpg" alt="Piano">
+            <h2>Yamaha NP-12 Piaggero</h2>
+            <p>$219.99</p>
+            <button>Add to Cart</button>
+            <div class="popup">
+                <h3>Yamaha NP-12 Piaggero Description</h3>
+                <p>A compact and lightweight portable keyboard ideal for beginners and hobbyists.
+				It offers a simple and user-friendly design with 61 keys and essential features for learning and playing music on the go.</p>
+            </div>
+        </div>
+        <div class="product" data-name="Drums">
+            <img src="drums2.jpg" alt="Drums">
+            <h2>Pearl Roadshow 5-piece Drum Set</h2>
+            <p>$529.99</p>
+            <button>Add to Cart</button>
+            <div class="popup">
+                <h3>Pearl Roadshow 5-piece Drum Set Description</h3>
+                <p>A comprehensive package suitable for beginners and intermediate drummers.
+				It includes everything needed to start playing, from drums and cymbals to hardware and drumsticks. 
+				This set offers good value for its quality and durability.</p>
+            </div>
+        </div>
+        <div class="product" data-name="Piano">
+            <img src="piano3.png" alt="Piano">
+            <h2>Korg B2 Digital Piano</h2>
+            <p>$699.99</p>
+            <button>Add to Cart</button>
+            <div class="popup">
+                <h3>Korg B2 Digital Piano Description</h3>
+                <p>It features high-quality sampled sounds and offers a wide range of instrument voices beyond pianos, making it suitable for various musical styles. 
+				The weighted keyboard feels natural to play, and the sleek design fits well in any environment, from practice rooms to small stages.</p>
+            </div>
+        </div>
+		<div class="product" data-name="Saxophone">
+            <img src="sax2.jpg" alt="Saxophone">
+            <h2>Jean Paul USA AS-400 Alto Saxophone</h2>
+            <p>$599.99</p>
+            <button>Add to Cart</button>
+            <div class="popup">
+                <h3>Jean Paul USA AS-400 Alto Saxophone Description</h3>
+                <p>It produces a warm and balanced tone, making it suitable for learning and practicing.
+				This model comes with essential accessories, such as a mouthpiece and reeds, to get you started on your saxophone journey.</p>
+            </div>
+        </div>
+		<div class="product" data-name="Drums">
+            <img src="drums3.jpg" alt="Drums">
+            <h2>Ludwig Pocket Kit</h2>
+            <p>$199.99</p>
+            <button>Add to Cart</button>
+            <div class="popup">
+                <h3>Ludwig Pocket Kit Description</h3>
+                <p>It's ideal for young drummers or anyone with limited space, offering a scaled-down setup without compromising on quality. 
+				Despite its smaller size, the Pocket Kit delivers a surprisingly full and balanced sound, making it perfect for practice at home or on the go.</p>
+            </div>
+        </div>
+		<div class="product" data-name="Saxophone">
+            <img src="sax3.jpg" alt="Saxophone">
+            <h2>Yamaha YAS-280 Alto Saxophone</h2>
+            <p>$1,199.99</p>
+            <button>Add to Cart</button>
+            <div class="popup">
+                <h3>Yamaha YAS-280 Alto Saxophone Description</h3>
+                <p>It offers excellent playability and intonation, thanks to Yamaha's renowned craftsmanship. 
+				The ergonomic design and quality materials ensure comfort and durability, making the YAS-280 a reliable choice for advancing musicians.</p>
+            </div>
+        </div>
+    </main>
+    <aside id="cartSidebar">
+        <button id="closeCartButton"><img src="return.png" width="25px" height="25px"></button>
+        <h2>Shopping Cart</h2>
+        <ul id="cartItems"></ul>
+        <h2>Checkout</h2>
+        <form id="checkoutForm">
+            <label for="firstName">First Name:</label><br>
+            <input type="text" id="firstName" name="firstName" required><br>
+            <label for="lastName">Last Name:</label><br>
+            <input type="text" id="lastName" name="lastName" required><br>
+			<label for="Address">Address:</label><br>
+			<input type="text" id="Address" name="Address" required><br>
+            <button type="submit">Proceed to Checkout</button>
+        </form>
+    </aside>
+<script>
+    document.getElementById('searchBar').addEventListener('input', function() {
+        filterProducts();
+    });
+
+    document.getElementById('categoryFilter').addEventListener('change', function() {
+        filterProducts();
+    });
+
+    document.getElementById('cartIcon').addEventListener('click', function() {
+        document.getElementById('cartSidebar').classList.toggle('open');
+    });
+
+    document.getElementById('closeCartButton').addEventListener('click', function() {
+        document.getElementById('cartSidebar').classList.remove('open');
+    });
+
+    let cartItemCount = 0;
+    const cartItems = [];
+
+    document.querySelectorAll('.product button').forEach(button => {
+        button.addEventListener('click', function() {
+            const product = this.closest('.product');
+            const productName = product.getAttribute('data-name');
+            const productPrice = product.querySelector('p').innerText;
+            const productImage = product.querySelector('img').src;
+
+            const existingCartItem = cartItems.find(item => item.name === productName);
+            if (existingCartItem) {
+                existingCartItem.quantity++;
+            } else {
+                cartItems.push({
+                    name: productName,
+                    price: productPrice,
+                    image: productImage,
+                    quantity: 1
+                });
+            }
+
+            cartItemCount++;
+            document.getElementById('cartItemCount').innerText = cartItemCount;
+
+            updateCart();
+        });
+    });
+
+    function filterProducts() {
+        let filter = document.getElementById('searchBar').value.toLowerCase();
+        let category = document.getElementById('categoryFilter').value.toLowerCase();
+        let products = document.querySelectorAll('.product');
+
+        products.forEach(function(product) {
+            let productName = product.getAttribute('data-name').toLowerCase();
+            let productCategory = productName.split(' ')[0];
+
+            if ((productName.includes(filter) || productCategory.includes(filter)) &&
+                (category === 'all' || productCategory === category)) {
+                product.style.display = '';
+            } else {
+                product.style.display = 'none';
+            }
+        });
+    }
+
+    function updateCart() {
+        const cartItemsList = document.getElementById('cartItems');
+        cartItemsList.innerHTML = '';
+
+        cartItems.forEach(item => {
+            const li = document.createElement('li');
+            li.innerHTML = `
+                <img src="${item.image}" alt="${item.name}">
+                <strong>${item.name}</strong> - ${item.price} - 
+                <button class="removeBtn" data-name="${item.name}">Remove</button>
+                <button class="decrementBtn" data-name="${item.name}">-</button>
+                <span>${item.quantity}</span>
+                <button class="incrementBtn" data-name="${item.name}">+</button>
+            `;
+            cartItemsList.appendChild(li);
+        });
+
+        document.querySelectorAll('.removeBtn').forEach(button => {
+            button.addEventListener('click', function() {
+                const productName = this.getAttribute('data-name');
+                const cartItemIndex = cartItems.findIndex(item => item.name === productName);
+                cartItemCount -= cartItems[cartItemIndex].quantity;
+                cartItems.splice(cartItemIndex, 1);
+                document.getElementById('cartItemCount').innerText = cartItemCount;
+                updateCart();
+            });
+        });
+
+        document.querySelectorAll('.decrementBtn').
+		forEach(button => {
+            button.addEventListener('click', function() {
+                const productName = this.getAttribute('data-name');
+                const cartItem = cartItems.find(item => item.name === productName);
+                if (cartItem.quantity > 1) {
+                    cartItem.quantity--;
+                    cartItemCount--;
+                    document.getElementById('cartItemCount').innerText = cartItemCount;
+                    updateCart();
+                }
+            });
+        });
+
+        document.querySelectorAll('.incrementBtn').forEach(button => {
+            button.addEventListener('click', function() {
+                const productName = this.getAttribute('data-name');
+                const cartItem = cartItems.find(item => item.name === productName);
+                cartItem.quantity++;
+                cartItemCount++;
+                document.getElementById('cartItemCount').innerText = cartItemCount;
+                updateCart();
+            });
+        });
+    }
+
+    document.getElementById('checkoutForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const firstName = document.getElementById('firstName').value;
+        const lastName = document.getElementById('lastName').value;
+        const address = document.getElementById('Address').value;
+
+        if (firstName.trim() === '' || lastName.trim() === '' || address.trim() === '') {
+            alert('Please fill out all fields.');
+            return;
+        }
+
+        let totalPrice = 0;
+        cartItems.forEach(item => {
+            totalPrice += parseFloat(item.price.replace('$', '')) * item.quantity;
+        });
+
+        const receipt = `
+            <h2>Receipt</h2>
+            <p><strong>Name:</strong> ${firstName} ${lastName}</p>
+            <p><strong>Address:</strong> ${address}</p>
+            <p><strong>Total Price:</strong> $${totalPrice.toFixed(2)}</p>
+            <button id="continueShopping">Continue Shopping</button>
+            <button id="returnHome">Return to Home</button>
+        `;
+        document.body.innerHTML = receipt;
+
+        document.getElementById('continueShopping').addEventListener('click', function() {
+            window.location.reload();
+        });
+
+        document.getElementById('returnHome').addEventListener('click', function() {
+            window.location.href = 'file:///C:/Users/202312294/Downloads/OneDrive_2024-05-19/WebDesign%20Finals/index.html';
+        });
+    });
+</script>
+<hr style="height:4px;border-width:0;color:gray;background-color:gray">
+<footer>
+    <h3>Contact Us</h3>
+    <p>Email: musicianslair@gmail.com</p>
+    <p>Phone: +63 9605890813</p>
+    <p>Address: 900 San Marcelino St, Ermita, Manila, 1000 Metro Manila</p>
+</footer> 
+</body>
+</html>
+
